@@ -1,10 +1,7 @@
 package GA_LongestPath;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class InitialSolutions {
     private static final String FILE_NAME = "array";
@@ -12,33 +9,16 @@ public class InitialSolutions {
 
     public static void main(String[] args) throws FileNotFoundException {
         long startTime = System.currentTimeMillis();
-//        System.out.println(rouletteSelect(getInitialSolution(FILE_NAME)));
         ArrayList<ArrayList<Integer>> startPopulation = getStartPopulation(POPULATION_SIZE);
-        printArray(applyElitism(startPopulation, 10));
-        printArray(rouletteSelect(startPopulation, 10));
+        
+
+        Selection.applySelection(startPopulation, POPULATION_SIZE / 2);
+
         System.out.println("Time: " + (System.currentTimeMillis() - startTime));
     }
 
-    private static ArrayList<ArrayList<Integer>> applyElitism(
-            ArrayList<ArrayList<Integer>> currentPopulation, int eliteCount) {
-        ArrayList<ArrayList<Integer>> elitePart = new ArrayList<ArrayList<Integer>>();
-        for (int i = 0; i < eliteCount; i++) {
-            int maxIndex = -1, maxLength = 0, pathLength, currentIndex = -1;
-            for (ArrayList<Integer> path : currentPopulation) {
-                currentIndex++;
-                pathLength = path.size();
-                if (pathLength > maxLength) {
-                    maxLength = pathLength;
-                    maxIndex = currentIndex;
-                }
-            }
-            if (maxIndex != -1) {
-                elitePart.add(currentPopulation.get(maxIndex));
-                currentPopulation.remove(maxIndex);
-            }
-        }
-        return elitePart;
-    }
+
+
 
     private static ArrayList<ArrayList<Integer>> getStartPopulation(int populationSize) throws FileNotFoundException {
         ArrayList<ArrayList<Integer>> startPopulation = new ArrayList<ArrayList<Integer>>();
@@ -51,12 +31,12 @@ public class InitialSolutions {
     private static ArrayList<Integer> getInitialSolution(String fileName) throws FileNotFoundException {
         int prev, current;
         ArrayList<Integer> resultPath = new ArrayList<Integer>();
-        ArrayList<ArrayList<Integer>> a = getArrayFromFile(fileName);
-        ArrayList<ArrayList<Integer>> b = getArrayFromFile(fileName);
+        ArrayList<ArrayList<Integer>> a = Tool.getArrayFromFile(fileName);
+        ArrayList<ArrayList<Integer>> b = Tool.getArrayFromFile(fileName);
         ArrayList<Integer> resultTemp = new ArrayList<Integer>();
         //b.addAll(a);
 
-//        printArray(a);
+//        Tool.printArray(a);
         Random random = new Random();
         Integer nextVertex = random.nextInt(a.size());
         resultPath.add(nextVertex);
@@ -67,7 +47,7 @@ public class InitialSolutions {
 //        ArrayList<Integer> agrees = getAgrees(a, nextVertices);
 //        System.out.println(agrees);
         boolean flag = true;
-        print(nextVertex);
+        Tool.print(nextVertex);
         ArrayList<Integer> nextVertices = new ArrayList<Integer>();
         while (true) {
             nextVertices = getNextVertices(a, nextVertex);
@@ -93,19 +73,19 @@ public class InitialSolutions {
                 } else break;
             }
 
-            print(nextVertices);
+            Tool.print(nextVertices);
             if (nextVertices.isEmpty()) {
                 break;
             }
             ArrayList<Integer> agrees = getAgrees(a, nextVertices);
-            print(agrees);
+            Tool.print(agrees);
             nextVertex = nextVertices.size() > 1 ? getNextVertex(nextVertices, agrees) : nextVertices.get(0);
             resultPath.add(nextVertex);
-            print(resultPath);
+            Tool.print(resultPath);
             current = nextVertex;
             deletePath(a, prev, current);
             prev = nextVertex;
-//            printArray(a);
+//            Tool.printArray(a);
         }
 
 
@@ -167,70 +147,6 @@ public class InitialSolutions {
         }
         return nextPath;
     }
-
-
-    private static void print(Object object) {
-//        System.out.println(object);
-    }
-
-    private static void printArray(ArrayList<ArrayList<Integer>> a) {
-        int length = a.size();
-        StringBuilder indexes = new StringBuilder();
-        indexes.append("    ");
-        for (int i = 0; i < length; i++) {
-            indexes.append(i + "  ");
-        }
-        System.out.println(indexes);
-        for (int i = 0; i < length; i++) {
-            System.out.println(i + ") " + a.get(i));
-        }
-    }
-
-    private static ArrayList<ArrayList<Integer>> getArrayFromFile(String fileName) throws FileNotFoundException {
-        ArrayList<ArrayList<Integer>> a = new ArrayList<ArrayList<Integer>>();
-        Scanner input = new Scanner(new File(fileName + ".txt"));
-        while (input.hasNextLine()) {
-            Scanner colReader = new Scanner(input.nextLine());
-            ArrayList col = new ArrayList();
-            while (colReader.hasNextInt()) {
-                col.add(colReader.nextInt());
-            }
-            a.add(col);
-        }
-        return a;
-    }
-
-    private static ArrayList<ArrayList<Integer>> rouletteSelect
-            (ArrayList<ArrayList<Integer>> currentPopulation, int count) {
-
-        ArrayList<ArrayList<Integer>> selectedPart = new ArrayList<ArrayList<Integer>>();
-        for (int i = 0; i < count; i++) {
-            double weight_sum = 0;
-            for (ArrayList<Integer> path : currentPopulation) {
-                weight_sum += path.size();
-            }
-            double value = new Random().nextDouble() * weight_sum;
-            int removeIndex = -1;
-            for (ArrayList<Integer> path : currentPopulation) {
-
-                removeIndex++;
-                value -= path.size();
-                if (value < 0) {
-                    selectedPart.add(path);
-                    currentPopulation.remove(removeIndex);
-                    break;
-                }
-            }
-            //если рандом получился 1, то у нас не получится value < 0
-            //и поэтому будет value = 0 и мы выбираем просто последний путь и его удаляем
-            if (value == 0) {
-                selectedPart.add(currentPopulation.get(currentPopulation.size() - 1));
-                currentPopulation.remove((currentPopulation.size() - 1));
-            }
-        }
-        return selectedPart;
-    }
-
     //TimeUnit.MILLISECONDS.toSeconds
 //        long second = (millis / 1000) % 60;
 //        long minute = (millis / (1000 * 60)) % 60;
