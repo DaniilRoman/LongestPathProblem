@@ -7,9 +7,8 @@ public class Selection {
 
     protected static ArrayList<ArrayList<Integer>> applySelection(ArrayList<ArrayList<Integer>> currentPopulation, int count){
         ArrayList<ArrayList<Integer>> nextPopulation = new ArrayList<ArrayList<Integer>>();
-        nextPopulation.addAll(Selection.applyElitism(currentPopulation, count/2));
-        nextPopulation.addAll(Selection.rouletteSelect(currentPopulation, count/2));
-        Tool.printArray(nextPopulation);
+        nextPopulation.addAll(Selection.applyElitism(currentPopulation, count/4));
+        nextPopulation.addAll(Selection.rouletteSelect(currentPopulation, 3*count/4));
         return nextPopulation;
     }
 
@@ -36,11 +35,14 @@ public class Selection {
             }
             //если рандом получился 1, то у нас не получится value < 0
             //и поэтому будет value = 0 и мы выбираем просто последний путь и его удаляем
-            if (value == 0) {
-                selectedPart.add(currentPopulation.get(currentPopulation.size() - 1));
-                currentPopulation.remove((currentPopulation.size() - 1));
-            }
+
+//            if (value == 0) {
+//                selectedPart.add(currentPopulation.get(currentPopulation.size() - 1));
+//                currentPopulation.remove((currentPopulation.size() - 1));
+//            }
         }
+//        System.out.println("SELECTED:");
+//        Tool.printArray(selectedPart);
         return selectedPart;
     }
 
@@ -62,6 +64,8 @@ public class Selection {
                 currentPopulation.remove(maxIndex);
             }
         }
+//        System.out.println("ELITE:");
+//        Tool.printArray(elitePart);
         return elitePart;
     }
 }

@@ -4,31 +4,124 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class InitialSolutions {
-    private static final String FILE_NAME = "array";
-    private static final int POPULATION_SIZE = 40;
+    private static final String FILE_NAME = "array2";
+    private static final int POPULATION_SIZE = 80;
+    private static int MUTATION_COUNT = 20;
 
     public static void main(String[] args) throws FileNotFoundException {
         long startTime = System.currentTimeMillis();
+        final ArrayList<ArrayList<Integer>> a = Tool.getArrayFromFile(FILE_NAME);
+        Tool.printArray(a);
         ArrayList<ArrayList<Integer>> startPopulation = getStartPopulation(POPULATION_SIZE);
-        
+        ArrayList<ArrayList<Integer>> currentPopulation = new ArrayList<ArrayList<Integer>>();
+        currentPopulation.addAll(startPopulation);
+//        System.out.println("FIRST:");
+        Tool.printArray(currentPopulation);
+        System.out.println("------------------------------------------------------------------------");
 
-        Selection.applySelection(startPopulation, POPULATION_SIZE / 2);
-
+        for (int i=0;i<40;i++) {
+//            System.out.println(i);
+            currentPopulation.addAll(applyMutation(a,startPopulation,MUTATION_COUNT));
+            currentPopulation = Selection.applySelection(currentPopulation, POPULATION_SIZE);
+//            System.out.println("CURRENT POP:");
+//            Tool.printArray(a);
+//            Tool.printArray(currentPopulation);
+//            System.out.println("------------------------------------------------------------------------\n");
+        }
+        System.out.println("------------------------------------------------------------------------");
+        System.out.println("------------------------------------------------------------------------");
+        System.out.println("------------------------------------------------------------------------");
+        Tool.printArray(currentPopulation);
         System.out.println("Time: " + (System.currentTimeMillis() - startTime));
     }
 
 
+    private static ArrayList<ArrayList<Integer>> applyMutation(ArrayList<ArrayList<Integer>> a,
+            ArrayList<ArrayList<Integer>> parents,int mutationCount) throws FileNotFoundException {
+        ArrayList<ArrayList<Integer>> children = new ArrayList<ArrayList<Integer>>();
+        ArrayList<Integer> tmp, child1,child2;// = new ArrayList<>();
+        for(ArrayList<Integer> parent: parents){
+            tmp = parent;
+            child1 = getChildren(a, parents,parent);
+            Collections.reverse(tmp);
+            child2 = getChildren(a, parents,tmp);
+            if(child1 == null || child2 == null) {continue;}
+            children.add(child1);
+            children.add(child2);
+            mutationCount--;
+            if(mutationCount<=0){break;}
+        }
+        return children;
+    }
+
+    // если возвращает null, то значит, что мутация не была успешной, нужно обработать выше
+    // не уменьшать счетчик успешых мутаций
+    private static ArrayList<Integer> getChildren(
+            ArrayList<ArrayList<Integer>> a,ArrayList<ArrayList<Integer>> parents, ArrayList<Integer> parent) throws FileNotFoundException {
+        ArrayList<ArrayList<Integer>> tmpMatrixA = Tool.getArrayFromFile(FILE_NAME);
+        ArrayList<Integer> child = new ArrayList<Integer>();
+        //получаем значение возмущения, т.е. узел в графе от которого будем перестраивать
+        //дальнейший путь. Мы сначала рандомно генерим число от 0 до половины длины пути родителя
+        //потом получаем значение вершины графа по сгенеренному индексу
+        int pressureValue = new Random().nextInt(Math.round(parent.size()/2));
+        for(int i=0;i<=pressureValue;i++){
+            child.add(parent.get(i));
+        }
+        if(pressureValue>0){
+            for (int i=1;i<=pressureValue+1;i++){
+                deletePath(tmpMatrixA,parent.get(i-1),parent.get(i));
+            }
+        }
+
+
+        int currentVertex = parent.get(pressureValue);
+
+//        System.out.println("Parent:"+parent);
+//        System.out.println("currentVertex:"+currentVertex);
+//        Tool.printArray(a);
+        ArrayList<Integer> nextVertices = getNextVertices(tmpMatrixA,currentVertex);
+        if(nextVertices.size()<3 || pressureValue==0){return null;}
+
+
+        int preventVertex = parent.get(pressureValue-1);
+        nextVertices.remove(parent.get(pressureValue+1));
+        nextVertices.remove(parent.get(pressureValue-1));
+        ArrayList<Integer> availableVertices = nextVertices;
+        int nextVertex;
+
+        while (true) {
+            if (availableVertices.isEmpty()) {
+                break;
+            }
+            ArrayList<Integer> agrees = getAgrees(tmpMatrixA, availableVertices);
+//            Tool.print(agrees);
+            nextVertex = availableVertices.size() > 1 ? getNextVertex(availableVertices, agrees) : availableVertices.get(0);
+            child.add(nextVertex);
+//            Tool.print(child);
+            currentVertex = nextVertex;
+            deletePath(tmpMatrixA, preventVertex, currentVertex);
+            preventVertex = nextVertex;
+            availableVertices = getNextVertices(tmpMatrixA, nextVertex);
+        }
+//        System.out.println("Child: "+child);
+
+//        System.out.println("AAAAA:");Tool.printArray(a);
+//        System.out.println("TMPPPP:");Tool.printArray(tmpMatrixA);
+        return child;
+    }
 
 
     private static ArrayList<ArrayList<Integer>> getStartPopulation(int populationSize) throws FileNotFoundException {
         ArrayList<ArrayList<Integer>> startPopulation = new ArrayList<ArrayList<Integer>>();
         for (int i = 0; i < populationSize; i++) {
-            startPopulation.add(getInitialSolution(FILE_NAME));
+            // -1 означает то, что мы будем инициализировать начальную точку рандомно
+            // или же мы можем ее задать напрямую
+            startPopulation.add(getInitialSolution(FILE_NAME,-1));
         }
         return startPopulation;
     }
 
-    private static ArrayList<Integer> getInitialSolution(String fileName) throws FileNotFoundException {
+    private static ArrayList<Integer> getInitialSolution(String fileName, int nextVertex) throws FileNotFoundException {
         int prev, current;
         ArrayList<Integer> resultPath = new ArrayList<Integer>();
         ArrayList<ArrayList<Integer>> a = Tool.getArrayFromFile(fileName);
@@ -37,8 +130,11 @@ public class InitialSolutions {
         //b.addAll(a);
 
 //        Tool.printArray(a);
-        Random random = new Random();
-        Integer nextVertex = random.nextInt(a.size());
+
+        if(nextVertex==-1) {
+            Random random = new Random();
+            nextVertex = random.nextInt(a.size());
+        }
         resultPath.add(nextVertex);
         prev = nextVertex;
 //        ArrayList<Integer> nextVertices = getNextVertices(a, i);
@@ -89,7 +185,7 @@ public class InitialSolutions {
         }
 
 
-        System.out.println("resultPath: " + getResultPath(resultPath, resultTemp));
+//        System.out.println("resultPath: " + getResultPath(resultPath, resultTemp));
         return getResultPath(resultPath, resultTemp);
     }
 
