@@ -1,29 +1,30 @@
 package GA_LongestPath;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Selection {
 
-    protected static ArrayList<ArrayList<Integer>> applySelection(ArrayList<ArrayList<Integer>> currentPopulation, int count){
-        ArrayList<ArrayList<Integer>> nextPopulation = new ArrayList<ArrayList<Integer>>();
+    protected static List<List<Integer>> applySelection(List<List<Integer>> currentPopulation, int count){
+        List<List<Integer>> nextPopulation = new ArrayList<>();
         nextPopulation.addAll(Selection.applyElitism(currentPopulation, count/4));
         nextPopulation.addAll(Selection.rouletteSelect(currentPopulation, 3*count/4));
         return nextPopulation;
     }
 
-    private static ArrayList<ArrayList<Integer>> rouletteSelect
-            (ArrayList<ArrayList<Integer>> currentPopulation, int count) {
+    private static List<List<Integer>> rouletteSelect
+            (List<List<Integer>> currentPopulation, int count) {
 
-        ArrayList<ArrayList<Integer>> selectedPart = new ArrayList<ArrayList<Integer>>();
+        List<List<Integer>> selectedPart = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             double weight_sum = 0;
-            for (ArrayList<Integer> path : currentPopulation) {
+            for (List<Integer> path : currentPopulation) {
                 weight_sum += path.size();
             }
             double value = new Random().nextDouble() * weight_sum;
             int removeIndex = -1;
-            for (ArrayList<Integer> path : currentPopulation) {
+            for (List<Integer> path : currentPopulation) {
 
                 removeIndex++;
                 value -= path.size();
@@ -46,12 +47,12 @@ public class Selection {
         return selectedPart;
     }
 
-    private static ArrayList<ArrayList<Integer>> applyElitism(
-            ArrayList<ArrayList<Integer>> currentPopulation, int eliteCount) {
-        ArrayList<ArrayList<Integer>> elitePart = new ArrayList<ArrayList<Integer>>();
+    private static List<List<Integer>> applyElitism(
+            List<List<Integer>> currentPopulation, int eliteCount) {
+        List<List<Integer>> elitePart = new ArrayList<>();
         for (int i = 0; i < eliteCount; i++) {
             int maxIndex = -1, maxLength = 0, pathLength, currentIndex = -1;
-            for (ArrayList<Integer> path : currentPopulation) {
+            for (List<Integer> path : currentPopulation) {
                 currentIndex++;
                 pathLength = path.size();
                 if (pathLength > maxLength) {

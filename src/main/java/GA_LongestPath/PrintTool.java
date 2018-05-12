@@ -3,11 +3,12 @@ package GA_LongestPath;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-public class Tool {
-    public static ArrayList<ArrayList<Integer>> getArrayFromFile(String fileName) throws FileNotFoundException {
-        ArrayList<ArrayList<Integer>> a = new ArrayList<ArrayList<Integer>>();
+public class PrintTool {
+    public static List<List<Integer>> getArrayFromFile(String fileName) throws FileNotFoundException {
+        List<List<Integer>> a = new ArrayList<>();
         Scanner input = new Scanner(new File(fileName + ".txt"));
         while (input.hasNextLine()) {
             Scanner colReader = new Scanner(input.nextLine());
@@ -21,10 +22,10 @@ public class Tool {
     }
 
     public static void print(Object object) {
-//        System.out.println(object);
+        System.out.println(object);
     }
 
-    public static void printArray(ArrayList<ArrayList<Integer>> a) {
+    public static void printArray(List<List<Integer>> a) {
         int length = a.size();
         StringBuilder indexes = new StringBuilder();
         indexes.append("    ");
