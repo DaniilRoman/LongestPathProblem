@@ -7,7 +7,7 @@ import java.util.List;
 public class Main {
     private static final String FILE_NAME = "array2";
     private static final int POPULATION_SIZE = 80;
-    private static int MUTATION_COUNT = 20;
+    private static int MUTATION_COUNT = 40;
     public static void main(String[] args) throws FileNotFoundException {
         long startTime = System.currentTimeMillis();
         final List<List<Integer>> matrixFromFile =  PrintTool.getArrayFromFile(FILE_NAME);
@@ -21,7 +21,7 @@ public class Main {
         PrintTool.printArray(currentPopulation);
         System.out.println("------------------------------------------------------------------------");
 
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 150; i++) {
 //            System.out.println(i);
             currentPopulation.addAll(Mutation.applyMutation(matrixFromFile, startPopulation, MUTATION_COUNT));
             currentPopulation = Selection.applySelection(currentPopulation, POPULATION_SIZE);

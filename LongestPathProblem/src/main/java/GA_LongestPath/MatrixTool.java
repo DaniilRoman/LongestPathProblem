@@ -30,7 +30,8 @@ public class MatrixTool {
 
     //образуем массив колличесва дальнейших путей у каждой из возможных следующих вершин
     // нужно для того, чтобы опреелить наиболее вероятное направление
-    public static List<Integer> getAgrees(List<List<Integer>> a, List<Integer> nextVertices) {
+    public static List<Integer> getAgrees(List<List<Integer>> a,
+                                          List<Integer> nextVertices) {
         List<Integer> agrees = new ArrayList<Integer>();
         for (Integer nextVertex : nextVertices) {
             int sum = 0;
